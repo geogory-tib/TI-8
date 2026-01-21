@@ -2,7 +2,7 @@
 # Makefile Options
 # ----------------------------
 
-NAME = CE8
+NAME = TI-8
 ICON = icon.png
 DESCRIPTION = "CHIP8 EMU"
 COMPRESSED = NO

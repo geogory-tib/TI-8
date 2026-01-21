@@ -15,6 +15,8 @@
 static bool emu_exit = false; 
 // no sound timer because the TI 84 family of calculators does not natively have sound;
 
+// queue for graphics
+static Dyn_Arry<u24> graphics_queue;
 
 inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size);
 
@@ -26,7 +28,11 @@ inline void decode_and_exec(chip8 *emu,u16 op);
 
 inline void handle_comp_instructions(chip8 *emu,u16 op);
 
-inline void graphics_cycle(chip8 *emu);
+//inline void graphics_cycle(chip8 *emu);
+
+inline void clear_screen(chip8 *emu);
+
+inline void blit_sprite(chip8 *emu);
 
 void emu_main(byte *rom_buffer,i16 rom_size){
   dbg_printf(" INFO: ENTERED EMU MAIN INITALIZING SCREEN\n");
@@ -41,7 +47,7 @@ void emu_main(byte *rom_buffer,i16 rom_size){
   dbg_printf(" INFO: initalized chip8 struct beginning cycle \n");
   while(!emu_exit){
 	chip8_cycle(emu);
-	graphics_cycle(emu);
+	//graphics_cycle(emu);
   }
   gfx_End();
   free(emu);
@@ -92,6 +98,7 @@ inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size){
 	pos.x = 0;
 	pos.y += 5;
   }
+  graphics_queue = new_dyn_arry<u24>(15);
 }
 
 void chip8_cycle(chip8 *emu_state){
@@ -108,9 +115,7 @@ u16 fetch_op(chip8 *emu){
 
 inline void decode_and_exec(chip8 *emu,u16 op){
   if(op == OP_CLS){
-	for(int i = 0; i < (C8_SCREEN_H * C8_SCREEN_W);i++){
-	  emu->display[i].on = 0;
-	}
+	clear_screen(emu);
   }else if (op == OP_RET){
 	emu->sp--;
 	emu->pc = emu->stack[emu->sp];
@@ -228,12 +233,15 @@ inline void decode_and_exec(chip8 *emu,u16 op){
 				emu->v[0xF] = 1;
 			  }
 			  emu->display[pixel_index].on ^= 1;
+			  graphics_queue.append(pixel_index);
 			}
 			//x++
 		  }
 		  //x = reg_valX
 		  //y++;
 		}
+		blit_sprite(emu);
+		//		graphics_cycle(emu);
 		break;
 	  }
 	default:
@@ -310,24 +318,46 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
   }
 }
 
-inline void graphics_cycle(chip8 *emu){
-  //gfx_SetDrawBuffer();
-  emu->display[(10 * C8_SCREEN_W) + 160].on = 1;
+// inline void graphic_cycle(chip8 *emu){
+//   //gfx_SetDrawBuffer();
+//   emu->display[(10 * C8_SCREEN_W) + 160].on = 1;
+//   gfx_SetColor(0);
+//   pixel current_pixel{0};
+//   for(int i = 0; i < (C8_SCREEN_H * C8_SCREEN_W);i++){
+// 	current_pixel = emu->display[i];
+// 	dbg_printf("current pixel pos{%d,%d}, on = %d\n",current_pixel.pos.x,current_pixel.pos.y,current_pixel.on);
+// 	if(current_pixel.on){
+// 	  gfx_SetColor(255);
+// 	  gfx_FillRectangle(current_pixel.pos.x,current_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
+// 	  gfx_SetColor(0);
+// 	}else{
+// 	  gfx_FillRectangle(current_pixel.pos.x,current_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
+// 	}
+//   }
+//   gfx_SetColor(255);
+//   gfx_FillRectangle(0,0,50,50);
+//    gfx_SwapDraw();
+// }
+inline void clear_screen(chip8 *emu){
   gfx_SetColor(0);
-  pixel current_pixel{0};
   for(int i = 0; i < (C8_SCREEN_H * C8_SCREEN_W);i++){
-	current_pixel = emu->display[i];
-	dbg_printf("current pixel pos{%d,%d}, on = %d\n",current_pixel.pos.x,current_pixel.pos.y,current_pixel.on);
-	if(current_pixel.on){
-	  gfx_SetColor(255);
-	  gfx_FillRectangle(current_pixel.pos.x,current_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
-	  gfx_SetColor(0);
-	}else{
-	  gfx_FillRectangle(current_pixel.pos.x,current_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
-	}
+	pixel *current_pixel = &emu->display[i];
+	current_pixel->on = 0;
+	dbg_printf("clear_screen: current pixel pos{%d,%d}, on = %d\n",current_pixel->pos.x,current_pixel->pos.y,current_pixel->on);
+	gfx_FillRectangle(current_pixel->pos.x,current_pixel->pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
   }
-  // gfx_SetColor(255);
-  // gfx_FillRectangle(0,0,50,50);
-  //  gfx_SwapDraw();
 }
 
+inline void blit_sprite(chip8 *emu){
+  for(int i = 0; i < graphics_queue.len;i++){
+	auto sprite_pixel = emu->display[graphics_queue[i]];
+	if(sprite_pixel.on){
+	  gfx_SetColor(255);
+	  gfx_FillRectangle(sprite_pixel.pos.x,sprite_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
+	}else{
+	  gfx_SetColor(0);
+	  gfx_FillRectangle(sprite_pixel.pos.x,sprite_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
+	}
+  }
+  graphics_queue.erase();
+}
