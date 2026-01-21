@@ -1,0 +1,22 @@
+#include <cstdlib>
+#include <ti/screen.h>
+#include <ti/getcsc.h>
+#include <ti/getkey.h>
+
+
+char file_buf[256];
+
+int main(void){
+	int rom_handle = 0;
+	os_ClrHomeFull();
+	os_SetCursorPos(0,0);
+	os_GetStringInput("Type the path to a Rom File" file_buf, sizeof(filebuf);
+	rom_handle =  os_OpenVar(file_buf,"r");
+	if(rom_handle == 0){
+		os_ClrHomeFull();
+		os_SetCursorPos(0,0);
+		os_PutStrfull("Unable to open rom file press  any key to exit);
+		os_GetKey();
+		return;
+	}	
+}    

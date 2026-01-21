@@ -1,0 +1,35 @@
+#ifndef TYPES_H
+#define TYPES_H
+#define C8_SCREEN_H 32
+#define C8_SCREEN_W 64
+struct vec2i{
+  i16 x,y;
+  void operator+=(vec2i other){
+	this->x += other.x;
+	this->y += other.y;
+  }
+  vec2i operator+(vec2i other){
+	vec2i ret;
+	ret.x = this->x + other.x;
+	ret.y = this->y + other.y;
+	return ret;
+  }
+};
+// abstraction for up scaling screen;
+struct pixel{
+  vec2i pos;
+  byte on = 0;;
+};
+struct chip8{
+  u16 pc;
+  u16 sp;
+  u16 ireg;
+  u16 stack[16];
+  pixel display[C8_SCREEN_H * C8_SCREEN_W];
+  byte dt;
+  byte v[16];
+  byte ram[4096];
+  byte kb[16];
+};
+
+#endif

@@ -1,0 +1,37 @@
+#include <cstdlib>
+#include <cstring.h>
+
+
+#include "include/typedefs.h"
+#include "include/instructions.h"
+
+#define C8_SCREEN_H 64
+#define C8_SCREEN_W 32
+
+// no sound timer because the TI 84 family of calculators does not natively have sound;
+struct chip8{
+  
+  u16 pc;
+  u16 sp;
+  u16 ireg;
+  u16 stack[16];
+  byte display[C8_SCREEN_H * C8_SCREEN_W];
+  byte dt;
+  byte v[16];
+  byte ram[4096];
+};
+
+
+void init_chip(chip8 *emu,i24 rom_handle);
+
+i24 emu_main(i24 rom_handle){
+  chip8 emu;
+  memset(&emu,0,sizeof(emu));
+  init_chip(&emu,rom_handle);
+}
+
+void init_chip(chip8 *emu,i24 rom_handle){
+  emu->pc = 0x200;
+ 
+}
+

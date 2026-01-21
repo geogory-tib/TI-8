@@ -1,0 +1,40 @@
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
+#define <typedefs.h>
+const u16 OP_CLS =  0x00E0;
+const u16 OP_RET = 0x00EE;
+const u16 NIB_JUMP = 0x1000;
+const u16 NIB_CALL = 0x2000;
+const u16 NIB_SKIPEQ = 0x3000;
+const u16 NIB_SKIPNEQ = 0x4000;
+const u16 NIB_RSKIPEQ = 0x5000;
+const u16 NIB_LOADVAL = 0x6000;
+const u16 NIB_ADDVAL = 0x7000;
+const u16 NIB_SKPNE = 0x9000;
+const u16 NIB_SETIND = 0xA000;
+const u16 NIB_JUMPOFF = 0xB000;
+const u16 NIB_RAND = 0xC000;
+const u16 NIB_DRAW = 0xD000;
+
+const u16 COMP_LDREG = 0x8001;
+const u16 COMP_AND = 0x8002;
+const u16 COMP_XOR = 0x8003;
+const u16 COMP_ADD = 0x8004;
+const u16 COMP_SUB = 0x8005;
+const u16 COMP_SHR = 0x8006;
+const u16 COMP_SUBN = 0x8007;
+const u16 COMP_SHL = 0x800E;
+
+const u16 ECOMP_SKPPRSSED = 0xE09E;
+const u16 ECOMP_SKPNOTPRSSED = 0xE0A1;
+
+const u16 FCOMP_LDDT = 0xF007;
+const u16 FCOMP_LOADKPRESS = 0xF00A;
+const u16 FCOMP_SETDT = 0xF015;
+const u16 FCOMP_SETST = 0xF018;
+const u16 FCOMP_ADDI = 0xF01E;
+const u16 FCOMP_SETISPRTADDR = 0xF029;
+const u16 FCOMP_LDBCD = 0xF033;
+const u16 FCOMP_SIMDSTORE = 0xF055;
+const u16 FCOMP_SIMDLOAD = 0xF065;
+#endif

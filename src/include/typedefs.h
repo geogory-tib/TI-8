@@ -1,0 +1,10 @@
+#ifndef TYPEDEFS_H
+#define TYPEDEFS_H
+#include <stdint.h>
+typedef int24_t i24;
+typedef uint24_t u24;
+typedef uint8_t byte;
+typedef int8_t i8;
+typedef int16_t i16;
+typedef uint16_t u16;
+#endif
