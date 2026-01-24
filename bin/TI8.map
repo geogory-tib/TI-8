@@ -1,0 +1,108 @@
+Section          Base   Top    High   Length
+---------------- ------ ------ ------ -------
+.icon            D1A882 D1A891             Fh
+.init.libs       D1A891 D1A8E9            58h
+.libs            D1A8E9 D1A90C            23h
+.init.clock      D1A90C D1A90C             0h
+.init.reruncheck D1A90C D1A90C             0h
+.init            D1A90C D1A936            2Ah
+.fini            D1A936 D1A96F            39h
+.text            D1A96F D1BDDB          146Ch
+.data            D1BDDB D1BEB5            DAh
+.rodata          D1BEB5 D1BFA5            F0h
+.init_array      000000 000000             0h
+.ctors           000000 000000             0h
+.dtors           000000 000000             0h
+.fini_array      000000 000000             0h
+.bss             D052C6 D052D5 D13FD8      Fh
+.header          D1A87F D1A882             3h
+
+Label                                   Value
+-------------------------------------   ------
+___low_bss                            = D052C6
+___len_bss                            = 00000F
+___heaptop                            = D13FD8
+___heapbot                            = D052D5
+___libs                               = D1A8E9
+___init_array_count                   = 000000
+___ctors_count                        = 000000
+___dtors_count                        = 000000
+___fini_array_count                   = 000000
+__stack                               = D1A87E
+__iand                                = D1A96F
+__bdivu                               = D1A986
+__bdvrmu                              = D1A990
+__bremu                               = D1A99F
+__bshru                               = D1A9AA
+__frameset                            = D1A9B4
+__frameset0                           = D1A9C2
+__idivs                               = D1A9CD
+__idvrms                              = D1A9D4
+__idvrmu                              = D1AA02
+__imulu                               = D1AA1A
+__ineg                                = D1AA4A
+__ishl                                = D1AA53
+__ishru                               = D1AA79
+__ladd                                = D1AABA
+__lmulu                               = D1AAC0
+__lsub                                = D1AB1C
+__sand                                = D1AB26
+__setflag                             = D1AB2F
+__sshru                               = D1AB39
+_os_DisableHomeTextBuffer             = D1AB46
+_os_EnableHomeTextBuffer              = D1AB58
+_random                               = D1AB6A
+__setstate                            = D1ABC8
+__state                               = D1BDDB
+_boot_GetDate                         = 0005A8
+_boot_GetTime                         = 0005B0
+_malloc                               = D1ABFD
+_free                                 = D1ACD0
+_realloc                              = D1AD7E
+_calloc                               = D1ABD8
+__standard_malloc                     = D1ABFD
+__standard_free                       = D1ACD0
+__standard_realloc                    = D1AD7E
+__alloc_base                          = D052C6
+_heap_ptr                             = D1BDEB
+_mktime                               = D1ADF4
+_mktime.yday                          = D1BEB5
+_time                                 = D1AEF8
+_memcpy                               = 0000A4
+_rand                                 = D1AF76
+_srand                                = D1AF83
+.missingappvar                        = D1BED9
+.libloadname                          = D1BEDE
+.libloadnamelen                       = 000007
+.webaddress                           = D1BEE6
+__start                               = D1A90C
+___exithl                             = D1A936
+skip._exit                            = D1A936
+skip.__Exit                           = D1A936
+_abort                                = D1A937
+skip._abort                           = D1A93B
+_exit.sp                              = D1A93C
+_exit.flash_wait_states               = D1A946
+__Z8emu_mainPhs                       = D1AF8B
+__Z9init_chipP5chip8Phs               = D1AFE0
+__Z11chip8_cycleP5chip8               = D1B175
+__Z8fetch_opP5chip8                   = D1B199
+__Z15decode_and_execP5chip8t          = D1B1E3
+JTI4_0                                = D1BEFB
+__Z12clear_screenP5chip8              = D1B5F7
+__Z24handle_comp_instructionsP5chip8t = D1B667
+JTI6_0                                = D1BF28
+__Z11blit_spriteP5chip8               = D1B9C1
+__ZN8Dyn_ArryIjE6appendEj             = D1BA52
+__Z24handle_fcomp_instructionP5chip8t = D1BAAF
+__ZN8Dyn_ArryIjE4growEj               = D1BD5A
+__ZN8Dyn_ArryIjEixEj                  = D1BD9D
+_main                                 = D1BDCB
+__ZL14graphics_queue                  = D052CC
+___const._Z9init_chipP5chip8Phs.fonts = D1BF55
+_br8kout_ch8                          = D1BDEE
+lib.LibLoad                           = D1A8E9
+_#gfx_Begin                           = D1A8FC
+_#gfx_SetColor                        = D1A900
+_#gfx_FillScreen                      = D1A904
+_#gfx_FillRectangle                   = D1A908

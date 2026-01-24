@@ -23,7 +23,7 @@ int main(void){
 	// 	return -1;
 	// }
   dbg_printf("INFO: ENTERING EMU_MAIN WITH IBM LOGO ROM");
-  emu_main(__4_flags_ch8,sizeof(__4_flags_ch8));
+  emu_main(br8kout_ch8,sizeof(br8kout_ch8));
   //ti_Close(rom_handle);
   return 0;
 }    

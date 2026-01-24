@@ -10,7 +10,7 @@
 #include "include/types.h"
 #include <debug.h>
 #define SCALED_PIXEL_W 5
-#define SCALED_PIXEL_H 5
+#define SCALED_PIXEL_H 7
 
 static bool emu_exit = false; 
 // no sound timer because the TI 84 family of calculators does not natively have sound;
@@ -95,10 +95,10 @@ inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size){
 	  // dbg_printf("I = %d i = %d index = %d\n",I,i,index);
 	  // dbg_printf("x = %d, y = %d\n",pos.x,pos.y);
 	  emu->display[index].pos = pos;
-	  pos.x += 5;
+	  pos.x += SCALED_PIXEL_W;
 	}
 	pos.x = 0;
-	pos.y += 5;
+	pos.y += SCALED_PIXEL_H;
   }
   graphics_queue = new_dyn_arry<u24>(15);
 }
@@ -106,6 +106,8 @@ inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size){
 void chip8_cycle(chip8 *emu_state){
   u16 op = fetch_op(emu_state);
   decode_and_exec(emu_state,op);
+  emu_state->dt--;
+  dbg_printf("PC: %d CURRENT_OP %x\n", emu_state->pc,op);
 }
 
 u16 fetch_op(chip8 *emu){
@@ -213,6 +215,7 @@ inline void decode_and_exec(chip8 *emu,u16 op){
 		byte reg_index = ((op & 0x0F00) >> 8);
 		byte and_numb = (op & 0x00FF);
 		emu->v[reg_index] = (rand_num & and_numb);
+		break;
 	  }
 	case NIB_DRAW:
 	  {
@@ -236,14 +239,17 @@ inline void decode_and_exec(chip8 *emu,u16 op){
 				emu->v[0xF] = 1;
 			  }
 			  emu->display[pixel_index].on ^= 1;
-			  graphics_queue.append(pixel_index);
 			}
+		
+			  graphics_queue.append(pixel_index);
 			//x++
 		  }
 		  //x = reg_valX
 		  //y++;
 		}
+		
 		blit_sprite(emu);
+		
 		//		graphics_cycle(emu);
 		break;
 	  }
@@ -394,20 +400,33 @@ inline void clear_screen(chip8 *emu){
   }
 }
 
-inline void blit_sprite(chip8 *emu){
-  for(int i = 0; i < graphics_queue.len;i++){
-	auto sprite_pixel = emu->display[graphics_queue[i]];
-	if(sprite_pixel.on){
-	  gfx_SetColor(255);
-	  gfx_FillRectangle(sprite_pixel.pos.x,sprite_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
-	}else{
-	  gfx_SetColor(0);
-	  gfx_FillRectangle(sprite_pixel.pos.x,sprite_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
-	}
-  }
-  graphics_queue.erase();
-}
+// inline void blit_sprite(chip8 *emu){
+//   for(int i = 0; i < graphics_queue.len;i++){
+// 	auto sprite_pixel = emu->display[graphics_queue[i]];
+// 	if(sprite_pixel.on){
+// 	  gfx_SetColor(255);
+// 	  gfx_FillRectangle(sprite_pixel.pos.x,sprite_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
+// 	}else{
+// 	  gfx_SetColor(0);
+// 	  gfx_FillRectangle(sprite_pixel.pos.x,sprite_pixel.pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
+// 	}
+//   }
+//   graphics_queue.erase();
+// }
 
+inline void blit_sprite(chip8 *emu) {
+    for (int i = 0; i < graphics_queue.len; i++) {
+        auto &sprite_pixel = emu->display[graphics_queue[i]]; // reference!
+        if (sprite_pixel.on) {
+            gfx_SetColor(255);
+        } else {
+            gfx_SetColor(0);
+        }
+        gfx_FillRectangle(sprite_pixel.pos.x, sprite_pixel.pos.y, SCALED_PIXEL_W, SCALED_PIXEL_H);
+    }
+
+    graphics_queue.len = 0;
+}
 inline void handle_fcomp_instruction(chip8 *emu,u16 op)
 {
   u16 op_byte = (op & 0xF00F);
