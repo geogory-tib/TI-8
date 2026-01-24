@@ -31,6 +31,7 @@ struct chip8{
   byte v[16];
   byte ram[4096];
   byte kb[16];
+  byte st; //unused;
 };
 
 template <typename T> struct Dyn_Arry {
@@ -85,9 +86,6 @@ template <typename T> struct Dyn_Arry {
   /*replaces the element at the given index with the supplied value*/
   inline void replace_at(size_t index, T elem) {
     if (index >= len) {
-      printf("Attemp of out of bounds replace. Array with Len:%zud indexed with "
-             "%zud\n",
-             len, index);
       abort();
     }
     buffer[index] = elem;
@@ -142,7 +140,6 @@ template <typename T> struct Dyn_Arry {
   }
   T operator[](size_t index) {
     if (index >= len) {
-      printf("Out of Bounds Indexing. Array with Len:%ld indexed with %ld\n",len, index);
 	  abort();
     }
     return buffer[index];

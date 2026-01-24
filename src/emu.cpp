@@ -28,6 +28,8 @@ inline void decode_and_exec(chip8 *emu,u16 op);
 
 inline void handle_comp_instructions(chip8 *emu,u16 op);
 
+inline void handle_fcomp_instruction(chip8 *emu,u16 op);
+
 //inline void graphics_cycle(chip8 *emu);
 
 inline void clear_screen(chip8 *emu);
@@ -51,8 +53,8 @@ void emu_main(byte *rom_buffer,i16 rom_size){
   }
   gfx_End();
   free(emu);
+  graphics_queue.free_arr();
 }
-
 inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size){ 
   byte read_buff[256];
   memset(read_buff,0, sizeof(read_buff));
@@ -90,8 +92,8 @@ inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size){
   for(u24 I = 0; I < C8_SCREEN_H;I++){
 	for(u24 i = 0;i<C8_SCREEN_W;i++){
 	  u24 index = (I * C8_SCREEN_W) + i;
-	  dbg_printf("I = %d i = %d index = %d\n",I,i,index);
-	  dbg_printf("x = %d, y = %d\n",pos.x,pos.y);
+	  // dbg_printf("I = %d i = %d index = %d\n",I,i,index);
+	  // dbg_printf("x = %d, y = %d\n",pos.x,pos.y);
 	  emu->display[index].pos = pos;
 	  pos.x += 5;
 	}
@@ -133,6 +135,7 @@ inline void decode_and_exec(chip8 *emu,u16 op){
 	  {
 		addr_var = (op & 0x0FFF);
 		emu->stack[emu->sp] = emu->pc;
+		emu->sp++;
 		emu->pc = addr_var;
 		break; 
 	  }
@@ -244,6 +247,11 @@ inline void decode_and_exec(chip8 *emu,u16 op){
 		//		graphics_cycle(emu);
 		break;
 	  }
+	case FCOMP_NIB:
+	  {
+		handle_fcomp_instruction(emu, op);
+		break;
+	  }
 	default:
 	  {
 		dbg_printf("Unknown op code %x\n", op);
@@ -291,6 +299,8 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
 	  emu->v[reg_indexX] = ((emu->v[reg_indexX] + emu->v[reg_indexY]) & 0xFF);
 	  if(add_result > 255){
 		emu->v[0xF] = 1;
+	  }else{
+		emu->v[0xF] =0;
 	  }
 	  break;
   }
@@ -298,16 +308,52 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
 	{
 	  byte reg_indexX = ((op & 0x0F00) >> 8);
 	  byte reg_indexY = ((op & 0x00F0) >> 4);
-	  if (emu->v[reg_indexX] > emu->v[reg_indexY]){
-	   	emu->v[0xF] = 1;
-	  }else{
-		emu->v[0xF] = 0;
-	  }
+	  byte numberX = emu->v[reg_indexX];
+	  byte numberY = emu->v[reg_indexY];
 	  // byte x_before = emu->v[reg_indexX];
-	  emu->v[reg_indexX] = (emu->v[reg_indexX] - emu->v[reg_indexY]);
+	  emu->v[reg_indexX] = (numberX - numberY);
 	  // if (x_before > emu->v[reg_indexY]){
 	  // 	emu->v[0xF] = 1;
 	  // }
+	  if(numberX < numberY)
+		emu->v[0xF] = 0;
+	  else
+		emu->v[0xF] = 1;
+	  break;
+	}
+  case COMP_SUBN:
+	{
+	  byte reg_indexX = ((op & 0x0F00) >> 8);
+	  byte reg_indexY = ((op & 0x00F0) >> 4);
+	  byte numberX = emu->v[reg_indexX];
+	  byte numberY = emu->v[reg_indexY];
+	  emu->v[0xF] = (emu->v[reg_indexY] >  emu->v[reg_indexX]);
+	  emu->v[reg_indexX] = (numberY - numberX);
+	  if(numberY < numberX)
+		emu->v[0xF] = 0;
+	  else
+		emu->v[0xF] = 1;
+	  break;
+	}
+  case COMP_SHR:
+	{
+	  
+	  byte reg_indexX = ((op & 0x0F00) >> 8);
+	  byte reg_indexY = ((op & 0x00F0) >> 4);	  
+	  emu->v[reg_indexX] = emu->v[reg_indexY];
+	  byte shifted_bit = (emu->v[reg_indexX] & 0x01);
+	  emu->v[reg_indexX] = (emu->v[reg_indexY] >> 1);
+	  emu->v[0xF] = shifted_bit;
+	  break;
+	}
+  case COMP_SHL:
+	{
+	  byte reg_indexX = ((op & 0x0F00) >> 8);
+	  byte reg_indexY = ((op & 0x00F0) >> 4);
+	  //emu->v[reg_indexX] = emu->v[reg_indexY];
+	  byte shifted_bit = ((emu->v[reg_indexX] &0x80) >> 7);
+	  emu->v[reg_indexX] = (emu->v[reg_indexX] << 1);
+	  emu->v[0xF] = shifted_bit;
 	  break;
 	}
   default:
@@ -343,7 +389,7 @@ inline void clear_screen(chip8 *emu){
   for(int i = 0; i < (C8_SCREEN_H * C8_SCREEN_W);i++){
 	pixel *current_pixel = &emu->display[i];
 	current_pixel->on = 0;
-	dbg_printf("clear_screen: current pixel pos{%d,%d}, on = %d\n",current_pixel->pos.x,current_pixel->pos.y,current_pixel->on);
+	//	dbg_printf("clear_screen: current pixel pos{%d,%d}, on = %d\n",current_pixel->pos.x,current_pixel->pos.y,current_pixel->on);
 	gfx_FillRectangle(current_pixel->pos.x,current_pixel->pos.y,SCALED_PIXEL_W,SCALED_PIXEL_H);
   }
 }
@@ -360,4 +406,78 @@ inline void blit_sprite(chip8 *emu){
 	}
   }
   graphics_queue.erase();
+}
+
+inline void handle_fcomp_instruction(chip8 *emu,u16 op)
+{
+  u16 op_byte = (op & 0xF00F);
+  // some of these are diffrent widths
+  u16 op_12_bit= (op & 0xF0FF);
+  switch(op_byte){
+  case FCOMP_LDDT:
+	{
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  emu->v[reg_index] = emu->dt;
+	  break;
+	}
+  case FCOMP_LOADKPRESS:
+	{
+	  // TODO - implement keyboard
+	  break;
+	}
+  }
+  switch(op_12_bit){
+  case FCOMP_SETDT:
+	{
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  emu->dt = emu->v[reg_index];
+	  break;
+	}
+  case FCOMP_SETST:
+	{
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  // there is no sound but some games might need it so im going to implement this structure;
+	  emu->st = emu->v[reg_index];
+	  break;
+	}
+  case FCOMP_ADDI:
+	{
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  emu->ireg = (emu->ireg + emu->v[reg_index]);
+	  break;
+	}
+  case FCOMP_SETISPRTADDR:
+	{
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  emu->ireg = emu->v[reg_index];
+	  break;
+	}
+  case FCOMP_LDBCD:
+	{
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  byte number = emu->v[reg_index];
+	  emu->ram[emu->ireg] = (number / 100);
+	  emu->ram[emu->ireg + 1] = ((number % 100) / 10);
+	  emu->ram[emu->ireg + 2] = (number % 10);
+	  break;
+	}
+  case FCOMP_SIMDSTORE:
+	{
+	  u16 reg_end = ((op & 0x0F00) >> 8);
+	  
+	  for(int i = 0; i <= reg_end;i++ ){
+		emu->ram[(emu->ireg + i)] = emu->v[i];
+		//dbg_printf("reg_end = %d, reg[%d] = %d, emu->ram[emu->ireg + i] = %d \n",reg_end,i,emu->v[i],emu->ram[emu->ireg + i]);
+	  }
+	  break;
+	}
+  case FCOMP_SIMDLOAD:
+	{
+	  u16 reg_end = ((op & 0x0F00) >> 8);
+	  for(int i = 0; i <= reg_end;i++ ){
+		emu->v[i] = emu->ram[(emu->ireg + i)];
+	  }
+	  break;
+	}
+  }
 }
