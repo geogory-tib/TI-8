@@ -1,8 +1,3 @@
-#include <cstdlib>
-#include <ti/screen.h>
-#include <ti/getcsc.h>
-#include <ti/getkey.h>
-#include <fileioc.h>
 #include "include/typedefs.h"
 #include <debug.h>
 #include "include/roms.h"
@@ -23,7 +18,7 @@ int main(void){
 	// 	return -1;
 	// }
   dbg_printf("INFO: ENTERING EMU_MAIN WITH IBM LOGO ROM");
-  emu_main(br8kout_ch8,sizeof(br8kout_ch8));
+  emu_main(__6_keypad_ch8,sizeof(__6_keypad_ch8));
   //ti_Close(rom_handle);
   return 0;
 }    

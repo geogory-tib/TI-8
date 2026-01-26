@@ -2,107 +2,111 @@ Section          Base   Top    High   Length
 ---------------- ------ ------ ------ -------
 .icon            D1A882 D1A891             Fh
 .init.libs       D1A891 D1A8E9            58h
-.libs            D1A8E9 D1A90C            23h
-.init.clock      D1A90C D1A90C             0h
-.init.reruncheck D1A90C D1A90C             0h
-.init            D1A90C D1A936            2Ah
-.fini            D1A936 D1A96F            39h
-.text            D1A96F D1BDDB          146Ch
-.data            D1BDDB D1BEB5            DAh
-.rodata          D1BEB5 D1BFA5            F0h
+.libs            D1A8E9 D1A91E            35h
+.init.clock      D1A91E D1A91E             0h
+.init.reruncheck D1A91E D1A91E             0h
+.init            D1A91E D1A948            2Ah
+.fini            D1A948 D1A97C            34h
+.text            D1A97C D1C064          16E8h
+.data            D1C064 D1C40A           3A6h
+.rodata          D1C40A D1C563           159h
 .init_array      000000 000000             0h
 .ctors           000000 000000             0h
 .dtors           000000 000000             0h
 .fini_array      000000 000000             0h
-.bss             D052C6 D052D5 D13FD8      Fh
+.bss             D052C6 D052DB D13FD8     15h
 .header          D1A87F D1A882             3h
 
-Label                                   Value
--------------------------------------   ------
-___low_bss                            = D052C6
-___len_bss                            = 00000F
-___heaptop                            = D13FD8
-___heapbot                            = D052D5
-___libs                               = D1A8E9
-___init_array_count                   = 000000
-___ctors_count                        = 000000
-___dtors_count                        = 000000
-___fini_array_count                   = 000000
-__stack                               = D1A87E
-__iand                                = D1A96F
-__bdivu                               = D1A986
-__bdvrmu                              = D1A990
-__bremu                               = D1A99F
-__bshru                               = D1A9AA
-__frameset                            = D1A9B4
-__frameset0                           = D1A9C2
-__idivs                               = D1A9CD
-__idvrms                              = D1A9D4
-__idvrmu                              = D1AA02
-__imulu                               = D1AA1A
-__ineg                                = D1AA4A
-__ishl                                = D1AA53
-__ishru                               = D1AA79
-__ladd                                = D1AABA
-__lmulu                               = D1AAC0
-__lsub                                = D1AB1C
-__sand                                = D1AB26
-__setflag                             = D1AB2F
-__sshru                               = D1AB39
-_os_DisableHomeTextBuffer             = D1AB46
-_os_EnableHomeTextBuffer              = D1AB58
-_random                               = D1AB6A
-__setstate                            = D1ABC8
-__state                               = D1BDDB
-_boot_GetDate                         = 0005A8
-_boot_GetTime                         = 0005B0
-_malloc                               = D1ABFD
-_free                                 = D1ACD0
-_realloc                              = D1AD7E
-_calloc                               = D1ABD8
-__standard_malloc                     = D1ABFD
-__standard_free                       = D1ACD0
-__standard_realloc                    = D1AD7E
-__alloc_base                          = D052C6
-_heap_ptr                             = D1BDEB
-_mktime                               = D1ADF4
-_mktime.yday                          = D1BEB5
-_time                                 = D1AEF8
-_memcpy                               = 0000A4
-_rand                                 = D1AF76
-_srand                                = D1AF83
-.missingappvar                        = D1BED9
-.libloadname                          = D1BEDE
-.libloadnamelen                       = 000007
-.webaddress                           = D1BEE6
-__start                               = D1A90C
-___exithl                             = D1A936
-skip._exit                            = D1A936
-skip.__Exit                           = D1A936
-_abort                                = D1A937
-skip._abort                           = D1A93B
-_exit.sp                              = D1A93C
-_exit.flash_wait_states               = D1A946
-__Z8emu_mainPhs                       = D1AF8B
-__Z9init_chipP5chip8Phs               = D1AFE0
-__Z11chip8_cycleP5chip8               = D1B175
-__Z8fetch_opP5chip8                   = D1B199
-__Z15decode_and_execP5chip8t          = D1B1E3
-JTI4_0                                = D1BEFB
-__Z12clear_screenP5chip8              = D1B5F7
-__Z24handle_comp_instructionsP5chip8t = D1B667
-JTI6_0                                = D1BF28
-__Z11blit_spriteP5chip8               = D1B9C1
-__ZN8Dyn_ArryIjE6appendEj             = D1BA52
-__Z24handle_fcomp_instructionP5chip8t = D1BAAF
-__ZN8Dyn_ArryIjE4growEj               = D1BD5A
-__ZN8Dyn_ArryIjEixEj                  = D1BD9D
-_main                                 = D1BDCB
-__ZL14graphics_queue                  = D052CC
-___const._Z9init_chipP5chip8Phs.fonts = D1BF55
-_br8kout_ch8                          = D1BDEE
-lib.LibLoad                           = D1A8E9
-_#gfx_Begin                           = D1A8FC
-_#gfx_SetColor                        = D1A900
-_#gfx_FillScreen                      = D1A904
-_#gfx_FillRectangle                   = D1A908
+Label                                                        Value
+----------------------------------------------------------   ------
+___low_bss                                                 = D052C6
+___len_bss                                                 = 000015
+___heaptop                                                 = D13FD8
+___heapbot                                                 = D052DB
+___libs                                                    = D1A8E9
+___init_array_count                                        = 000000
+___ctors_count                                             = 000000
+___dtors_count                                             = 000000
+___fini_array_count                                        = 000000
+__stack                                                    = D1A87E
+__iand                                                     = D1A97C
+__bdvrmu                                                   = D1A993
+__bremu                                                    = D1A9A2
+__bshru                                                    = D1A9AD
+__frameset                                                 = D1A9B7
+__idivs                                                    = D1A9C5
+__idvrms                                                   = D1A9CC
+__idvrmu                                                   = D1A9FA
+__imulu                                                    = D1AA12
+__ineg                                                     = D1AA42
+__ishl                                                     = D1AA4B
+__ishru                                                    = D1AA71
+__ladd                                                     = D1AAB2
+__lcmpu                                                    = D1AAB8
+__lmulu                                                    = D1AAC0
+__lsub                                                     = D1AB1C
+__smulu                                                    = D1AB26
+__sshru                                                    = D1AB39
+_atomic_load_32                                            = D1AB46
+_os_DisableHomeTextBuffer                                  = D1AB64
+_os_EnableHomeTextBuffer                                   = D1AB76
+_random                                                    = D1AB88
+__setstate                                                 = D1ABE6
+__state                                                    = D1C064
+_boot_GetDate                                              = 0005A8
+_boot_GetTime                                              = 0005B0
+_malloc                                                    = D1AC1B
+_free                                                      = D1ACEE
+_realloc                                                   = D1AD9C
+_calloc                                                    = D1ABF6
+__standard_malloc                                          = D1AC1B
+__standard_free                                            = D1ACEE
+__standard_realloc                                         = D1AD9C
+__alloc_base                                               = D052C6
+_heap_ptr                                                  = D1C074
+_mktime                                                    = D1AE12
+_mktime.yday                                               = D1C40A
+_time                                                      = D1AF16
+_memcpy                                                    = 0000A4
+_rand                                                      = D1AF94
+_srand                                                     = D1AFA1
+.missingappvar                                             = D1C42E
+.libloadname                                               = D1C433
+.libloadnamelen                                            = 000007
+.webaddress                                                = D1C43B
+__start                                                    = D1A91E
+___exithl                                                  = D1A948
+skip._exit                                                 = D1A948
+skip.__Exit                                                = D1A948
+skip._abort                                                = D1A948
+_exit.sp                                                   = D1A949
+_exit.flash_wait_states                                    = D1A953
+__Z8emu_mainPhs                                            = D1AFA9
+__Z15decode_and_execP5chip8t                               = D1B28C
+JTI1_0                                                     = D1C450
+__Z24handle_comp_instructionsP5chip8t                      = D1B8AE
+JTI2_0                                                     = D1C47D
+__Z24handle_fcomp_instructionP5chip8t                      = D1BBB5
+JTI3_0                                                     = D1C4AA
+_main                                                      = D1BE82
+__Z13scan_key_fastv                                        = D1BE9A
+__ZL10last_timer                                           = D052CC
+__ZL8emu_exit                                              = D052D0
+__ZL14graphics_queue.0                                     = D052D1
+__ZL14graphics_queue.1                                     = D052D4
+__ZL14graphics_queue.2                                     = D052D7
+__ZZ11handle_keysP5chip8E7prevkey                          = D052DA
+__ZL13last_key_code                                        = D1C077
+___const._Z9init_chipP5chip8Phs.fonts                      = D1C507
+__ZZ24handle_fcomp_instructionP5chip8tE17key_pressed_index = D1C078
+___6_keypad_ch8                                            = D1C079
+_switch.table._Z13scan_key_fastv                           = D1C557
+_switch.table._Z13scan_key_fastv.1                         = D1C55B
+_switch.table._Z13scan_key_fastv.2                         = D1C55F
+lib.LibLoad                                                = D1A8E9
+_#gfx_Begin                                                = D1A8FC
+_#gfx_End                                                  = D1A900
+_#gfx_SetColor                                             = D1A904
+_#gfx_FillScreen                                           = D1A908
+_#gfx_FillRectangle                                        = D1A90C
+_#kb_Reset                                                 = D1A91A

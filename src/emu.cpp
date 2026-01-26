@@ -1,22 +1,25 @@
 #include <cstdlib>
 #include <cstring>
-
-
 #include <graphx.h>
 #include <fileioc.h>
-#include <time.h> 
+#include <time.h>
+#include <keypadc.h>
+#include <sys/timers.h>
 #include "include/typedefs.h"
 #include "include/instructions.h"
 #include "include/types.h"
+#include "include/scan_keys.h"
 #include <debug.h>
 #define SCALED_PIXEL_W 5
 #define SCALED_PIXEL_H 7
+#define CH8_TIMER_DELTA 543
+static bool emu_exit = false;
 
-static bool emu_exit = false; 
-// no sound timer because the TI 84 family of calculators does not natively have sound;
-
+static byte last_key_code = 0xFF;
 // queue for graphics
 static Dyn_Arry<u24> graphics_queue;
+
+static u32 last_timer;
 
 inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size);
 
@@ -36,6 +39,12 @@ inline void clear_screen(chip8 *emu);
 
 inline void blit_sprite(chip8 *emu);
 
+void handle_keys(chip8 *emu);
+
+inline void handle_ecomp_instructions(chip8 *emu, u16 op);
+
+void handle_timer(chip8 *emu);
+
 void emu_main(byte *rom_buffer,i16 rom_size){
   dbg_printf(" INFO: ENTERED EMU MAIN INITALIZING SCREEN\n");
   gfx_Begin();
@@ -47,11 +56,15 @@ void emu_main(byte *rom_buffer,i16 rom_size){
   memset(emu,0,sizeof(*emu));
   init_chip(emu,rom_buffer,rom_size);
   dbg_printf(" INFO: initalized chip8 struct beginning cycle \n");
+  kb_SetMode(MODE_3_CONTINUOUS);
+  timer_Enable(2,TIMER_32K,TIMER_NOINT,TIMER_UP);
+  last_timer = timer_Get(2);
   while(!emu_exit){
 	chip8_cycle(emu);
-	//graphics_cycle(emu);
+	handle_keys(emu);
   }
   gfx_End();
+  kb_Reset();
   free(emu);
   graphics_queue.free_arr();
 }
@@ -106,7 +119,7 @@ inline void init_chip(chip8 *emu,byte *rom_buf,i16 rom_size){
 void chip8_cycle(chip8 *emu_state){
   u16 op = fetch_op(emu_state);
   decode_and_exec(emu_state,op);
-  emu_state->dt--;
+  handle_timer(emu_state);
   dbg_printf("PC: %d CURRENT_OP %x\n", emu_state->pc,op);
 }
 
@@ -258,6 +271,11 @@ inline void decode_and_exec(chip8 *emu,u16 op){
 		handle_fcomp_instruction(emu, op);
 		break;
 	  }
+	case ECOMP_NIB:
+	  {
+		handle_ecomp_instructions(emu, op);
+		break;
+	  }
 	default:
 	  {
 		dbg_printf("Unknown op code %x\n", op);
@@ -278,16 +296,20 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
 	}
   case COMP_OR:
 	{
+	 
 	  byte reg_indexX = ((op & 0x0F00) >> 8);
 	  byte reg_indexY = ((op & 0x00F0) >> 4);
 	  emu->v[reg_indexX] |= emu->v[reg_indexY];
+	  emu->v[0xF] = 0;	  
 	  break;
 	}
   case COMP_AND:
 	{
+	  
 	  byte reg_indexX = ((op & 0x0F00) >> 8);
 	  byte reg_indexY = ((op & 0x00F0) >> 4);
 	  emu->v[reg_indexX] &= emu->v[reg_indexY];
+	  emu->v[0xF] = 0;	  
 	  break;
 	}
   case COMP_XOR:
@@ -295,6 +317,7 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
 	  byte reg_indexX = ((op & 0x0F00) >> 8);
 	  byte reg_indexY = ((op & 0x00F0) >> 4);
 	  emu->v[reg_indexX] ^= emu->v[reg_indexY];
+	  emu->v[0xF] = 0;	  
 	  break;
 	}
   case COMP_ADD:
@@ -343,7 +366,6 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
 	}
   case COMP_SHR:
 	{
-	  
 	  byte reg_indexX = ((op & 0x0F00) >> 8);
 	  byte reg_indexY = ((op & 0x00F0) >> 4);	  
 	  emu->v[reg_indexX] = emu->v[reg_indexY];
@@ -356,7 +378,7 @@ inline void handle_comp_instructions(chip8 *emu,u16 op){
 	{
 	  byte reg_indexX = ((op & 0x0F00) >> 8);
 	  byte reg_indexY = ((op & 0x00F0) >> 4);
-	  //emu->v[reg_indexX] = emu->v[reg_indexY];
+	  emu->v[reg_indexX] = emu->v[reg_indexY];
 	  byte shifted_bit = ((emu->v[reg_indexX] &0x80) >> 7);
 	  emu->v[reg_indexX] = (emu->v[reg_indexX] << 1);
 	  emu->v[0xF] = shifted_bit;
@@ -441,7 +463,17 @@ inline void handle_fcomp_instruction(chip8 *emu,u16 op)
 	}
   case FCOMP_LOADKPRESS:
 	{
-	  // TODO - implement keyboard
+	  static byte key_pressed_index = 0xFF;
+	  u16 reg_index = ((op & 0x0F00) >> 8);
+	  if (last_key_code != 0xFF){
+		key_pressed_index = last_key_code;
+	  }
+	  if(key_pressed_index != 0xFF && last_key_code == 0xFF){
+		emu->v[reg_index] = key_pressed_index;
+		key_pressed_index = 0xFF;
+		return;
+	  }
+	  emu->pc -= 2;
 	  break;
 	}
   }
@@ -485,7 +517,8 @@ inline void handle_fcomp_instruction(chip8 *emu,u16 op)
 	  u16 reg_end = ((op & 0x0F00) >> 8);
 	  
 	  for(int i = 0; i <= reg_end;i++ ){
-		emu->ram[(emu->ireg + i)] = emu->v[i];
+		emu->ram[(emu->ireg)] = emu->v[i];
+		emu->ireg++;
 		//dbg_printf("reg_end = %d, reg[%d] = %d, emu->ram[emu->ireg + i] = %d \n",reg_end,i,emu->v[i],emu->ram[emu->ireg + i]);
 	  }
 	  break;
@@ -494,9 +527,65 @@ inline void handle_fcomp_instruction(chip8 *emu,u16 op)
 	{
 	  u16 reg_end = ((op & 0x0F00) >> 8);
 	  for(int i = 0; i <= reg_end;i++ ){
-		emu->v[i] = emu->ram[(emu->ireg + i)];
+		emu->v[i] = emu->ram[(emu->ireg)];
+		emu->ireg++;
 	  }
 	  break;
 	}
+  }
+}
+
+inline void handle_ecomp_instructions(chip8 *emu, u16 op){
+  u16 op_type= (op & 0xF0FF);
+  u16 reg_index = ((op & 0x0F00) >> 8);
+  switch(op_type){
+  case ECOMP_SKPPRSSED:
+	{
+	  byte key_value = emu->v[reg_index];
+	  if(emu->kb[key_value]){
+		emu->pc += 2;
+	  }
+	  break;
+	}
+  case ECOMP_SKPNOTPRSSED:
+	{
+	  byte key_value = emu->v[reg_index];
+	  if(!emu->kb[key_value]){
+		emu->pc += 2;
+	  }
+	}
+	break;
+  }
+  
+}
+
+void handle_keys(chip8 *emu){
+  static byte prevkey = 0;
+  dbg_printf("prevkey = %x",prevkey);
+  emu->kb[prevkey] = 0;
+  byte key = scan_key_fast();
+  if(key > 0x15){
+	if (key == 0xFA){
+	  emu_exit = true;
+	}
+	dbg_printf("key = %x leaving\n",key);
+	last_key_code = 0xFF;
+	return;
+  }
+  emu->kb[key] = 1;
+  dbg_printf("emu->kb[%x] = %d\n",key,emu->kb[key]);
+  prevkey = key;
+  last_key_code = key;
+}
+
+void handle_timer(chip8 *emu){
+  u32 timer_now = timer_Get(2);
+  u32 delta = timer_now - last_timer;
+  if(delta >= CH8_TIMER_DELTA){
+	last_timer = timer_now;
+	if(emu->dt > 0)
+	  emu->dt--;
+	if(emu->st > 0)
+	  emu->st--;
   }
 }

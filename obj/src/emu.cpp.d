@@ -7,5 +7,8 @@ obj/src/emu.cpp.bc: src/emu.cpp /home/john/CEdev/include/c++/cstdlib \
   /home/john/CEdev/include/stddef.h /home/john/CEdev/include/stdio.h \
   /home/john/CEdev/include/stdarg.h /home/john/CEdev/include/ti/vars.h \
   /home/john/CEdev/include/ti/real.h /home/john/CEdev/include/time.h \
-  src/include/typedefs.h src/include/instructions.h src/include/types.h \
+  /home/john/CEdev/include/keypadc.h \
+  /home/john/CEdev/include/sys/timers.h \
+  /home/john/CEdev/include/sys/util.h src/include/typedefs.h \
+  src/include/instructions.h src/include/types.h src/include/scan_keys.h \
   /home/john/CEdev/include/debug.h
