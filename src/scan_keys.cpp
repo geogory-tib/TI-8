@@ -23,7 +23,8 @@ byte scan_key_fast()
   if (kb_Data[1] & (0x80 >> 1)){
 	return 0xFA;
   }
-  if(kb_Data[1] & (0x80 > 2))
+  // 2nd key
+  if(kb_Data[1] & (0x80 >> 2))
 	return  0xF9;
   if(kb_Data[2] & 0x80)
 	return 0xF8;
