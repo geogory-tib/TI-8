@@ -2510,8 +2510,7 @@ __Z13scan_key_fastv:
 	ld	h, d
 	pop	de
 	ld	a, l
-	and	a, 1
-	bit	0, a
+	bit	5, a
 	jp	nz, BB9_39
 	ld	hl, -720876
 	push	de
