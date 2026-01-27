@@ -15,6 +15,8 @@
 #define CH8_TIMER_DELTA 543
 static bool emu_exit = false;
 
+static bool emu_pause = false;
+
 static byte last_key_code = 0xFF;
 // queue for graphics
 static Dyn_Arry<u24> graphics_queue;
@@ -60,7 +62,8 @@ void emu_main(byte *rom_buffer,i16 rom_size){
   timer_Enable(2,TIMER_32K,TIMER_NOINT,TIMER_UP);
   last_timer = timer_Get(2);
   while(!emu_exit){
-	chip8_cycle(emu);
+	if(!emu_pause)
+	  chip8_cycle(emu);
 	handle_keys(emu);
   }
   gfx_End();
@@ -567,6 +570,11 @@ void handle_keys(chip8 *emu){
   if(key > 0x15){
 	if (key == 0xFA){
 	  emu_exit = true;
+	}
+	if (key == 0xF9)
+	  emu_pause = !emu_pause;
+	if (key == 0xf8){
+	  //TODO add throttle
 	}
 	dbg_printf("key = %x leaving\n",key);
 	last_key_code = 0xFF;

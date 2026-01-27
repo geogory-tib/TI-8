@@ -1,65 +1,13 @@
 
 #include <keypadc.h>
 #include "include/typedefs.h"
-//this switch statement translates the calculators keyboard matrix to chip8 keyboard codes
-static inline byte get_key_code(byte row,byte col)
-{
-  switch(row){
-  case 1:
-	{
-	  switch(col){
-	  case 3:
-		return 0x0A;
-	  case 4:
-		return 0x00;
-	  case 5:
-		return 0x0B;
-	  case 6:
-		return 0x0F;
-	  }
-	  break;
-	}
-  case 2:
-	{
-	  switch(col){
-	  case 3:
-		return 0x07;
-	  case 4:
-		return 0x08;
-	  case 5:
-		return 0x09;
-	  case 6:
-		return 0x0E;
-	  }
-	}
-  case 4:
-	{
-	  switch(col){
-	  case 3:
-		return 0x04;
-	  case 4:
-		return 0x05;
-	  case 5:
-		return 0x06;
-	  case 6:
-		return 0x0D;
-	  }
-	}
-  case 8:
-	  switch(col){
-	  case 3:
-		return 0x01;
-	  case 4:
-		return 0x02;
-	  case 5:
-		return 0x03;
-	  case 6:
-		return 0x0C;
-	  }
-  }
-	return 0xFF;
-}
 //this just scans the parts of the keyboard matrix I need
+static const byte KEY_MAP[4][4] = {
+    {0x0A, 0x00, 0x0B, 0x0F},  // Row bit 0
+    {0x07, 0x08, 0x09, 0x0E},  // Row bit 1
+    {0x04, 0x05, 0x06, 0x0D},  // Row bit 2
+    {0x01, 0x02, 0x03, 0x0C}   // Row bit 3
+};
 byte scan_key_fast()
 {
   //this function updates the keyboard registers I think?
@@ -67,7 +15,7 @@ byte scan_key_fast()
 	for(int i = 3; i <= 6;i++){
 	  byte pressed = (kb_Data[i] & (0x01 << shift));
 	  if(pressed){
-		byte keycode = get_key_code(pressed, i);
+		byte keycode = KEY_MAP[shift][i - 3];
 		return keycode;
 	  }
 	}
@@ -75,5 +23,9 @@ byte scan_key_fast()
   if (kb_Data[1] & (0x80 >> 1)){
 	return 0xFA;
   }
+  if(kb_Data[1] & (0x80 > 2))
+	return  0xF9;
+  if(kb_Data[2] & 0x80)
+	return 0xF8;
   return 0xFF;
 }
